@@ -4,6 +4,7 @@ namespace Niladam\QuickLinks;
 
 use Closure;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\HtmlString;
 use ReflectionClass;
 
@@ -12,6 +13,11 @@ class QuickLinks
     public static array $disabled = [];
 
     public static bool | Closure $enabled = true;
+
+    /**
+     * @var array<int, string|Htmlable|null>
+     */
+    protected static array $originalDescriptions = [];
 
     public function disableOn(string $resource): void
     {
@@ -152,7 +158,50 @@ class QuickLinks
         $separator = config('quick-links.separator', ' &bull; ');
         $linksHtml = implode($separator, $links);
 
+        $permissions = $this->buildPermissions($table);
+
+        if (! empty($permissions)) {
+            $linksHtml .= sprintf(
+                '<br><small>Permissions: %s</small>',
+                implode(', ', $permissions),
+            );
+        }
+
         return new HtmlString("{$prefix} {$linksHtml}");
+    }
+
+    public function applyToTable(Table $table): void
+    {
+        if ($this->isDisabled()) {
+            return;
+        }
+
+        if (! method_exists($table->getLivewire(), 'getResource')) {
+            return;
+        }
+
+        if ($this->resourceIsDisabled($table->getLivewire()->getResource())) {
+            return;
+        }
+
+        $tableId = spl_object_id($table);
+        static::$originalDescriptions[$tableId] ??= $table->getDescription();
+
+        $quickLinks = $this->build($table);
+
+        if ($quickLinks === null) {
+            return;
+        }
+
+        $descriptionParts = [$quickLinks->toHtml()];
+
+        if (! empty(static::$originalDescriptions[$tableId])) {
+            $descriptionParts[] = $this->stringifyDescription(static::$originalDescriptions[$tableId]);
+        }
+
+        $table->description(
+            new HtmlString(implode('<br>', $descriptionParts))
+        );
     }
 
     protected function renderLink(string $filePath, ?string $linkTitle = null): string
@@ -166,5 +215,48 @@ class QuickLinks
             $url,
             $title
         );
+    }
+
+    /**
+     * @return array<string>
+     */
+    protected function buildPermissions(Table $table): array
+    {
+        if (! config('quick-links.permissions', true)) {
+            return [];
+        }
+
+        if (! app()->isLocal()) {
+            return [];
+        }
+
+        if (! class_exists(\BezhanSalleh\FilamentShield\Facades\FilamentShield::class)) {
+            return [];
+        }
+
+        /** @var class-string|null $resource */
+        $resource = $table->getLivewire()->getResource();
+
+        if ($resource === null) {
+            return [];
+        }
+
+        /** @var array<string>|null $permissions */
+        $permissions = \BezhanSalleh\FilamentShield\Facades\FilamentShield::getResourcePermissions($resource);
+
+        if (! is_array($permissions)) {
+            return [];
+        }
+
+        return array_values(array_filter($permissions));
+    }
+
+    protected function stringifyDescription(string | Htmlable | null $description): string
+    {
+        if ($description instanceof Htmlable) {
+            return $description->toHtml();
+        }
+
+        return (string) $description;
     }
 }

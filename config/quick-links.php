@@ -16,6 +16,8 @@ return [
         'env' => env('QUICK_LINKS_SHOW_ENV', true),
     ],
 
+    'permissions' => env('QUICK_LINKS_SHOW_PERMISSIONS', true),
+
     'prefix' => env('QUICK_LINKS_PREFIX', 'Open in PHPStorm:'),
     'separator' => env('QUICK_LINKS_SEPARATOR', ' &bull; '),
 

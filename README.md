@@ -6,7 +6,7 @@
 Quickly open resource, models, and other files from within your FilamentPHP table in your PHPstorm editor.
 
 > [!IMPORTANT]
-> This package uses your table's `description` field (see [docs](https://filamentphp.com/docs/3.x/tables/advanced#customizing-the-table-header)), so if there's a description already the quick links won't appear.
+> By default quick links render inside the table `description` (see [docs](https://filamentphp.com/docs/3.x/tables/advanced#customizing-the-table-header)). The package now appends links and keeps any existing description.
 
 ## Installation
 

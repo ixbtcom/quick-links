@@ -2,8 +2,10 @@
 
 namespace Niladam\QuickLinks;
 
+use Livewire\Livewire;
 use Filament\Tables\Table;
 use Niladam\QuickLinks\Facades\QuickLinks;
+use Niladam\QuickLinks\Livewire\QuickLinksComponentHook;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -43,6 +45,7 @@ class QuickLinksServiceProvider extends PackageServiceProvider
             return;
         }
 
-        Table::configureUsing(static fn (Table $table) => $table->description(fn () => QuickLinks::build($table)));
+        Livewire::componentHook(QuickLinksComponentHook::class);
+        Table::configureUsing(static fn (Table $table) => QuickLinks::applyToTable($table));
     }
 }
