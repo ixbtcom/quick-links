@@ -7,6 +7,7 @@ use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\HtmlString;
 use ReflectionClass;
+use Niladam\QuickLinks\GateCollector;
 
 class QuickLinks
 {
@@ -226,18 +227,20 @@ class QuickLinks
             return [];
         }
 
-        if (! app()->isLocal()) {
-            return [];
-        }
+        $observedGates = GateCollector::getAll();
 
-        if (! class_exists(\BezhanSalleh\FilamentShield\Facades\FilamentShield::class)) {
-            return [];
+        if (! empty($observedGates)) {
+            return $observedGates;
         }
 
         /** @var class-string|null $resource */
         $resource = $table->getLivewire()->getResource();
 
         if ($resource === null) {
+            return [];
+        }
+
+        if (! class_exists(\BezhanSalleh\FilamentShield\Facades\FilamentShield::class)) {
             return [];
         }
 

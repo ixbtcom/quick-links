@@ -6,7 +6,13 @@
 Quickly open resource, models, and other files from within your FilamentPHP table in your PHPstorm editor.
 
 > [!IMPORTANT]
-> By default quick links render inside the table `description` (see [docs](https://filamentphp.com/docs/3.x/tables/advanced#customizing-the-table-header)). The package now appends links and keeps any existing description.
+> By default quick links render inside the table `description` (see [docs](https://filamentphp.com/docs/3.x/tables/advanced#customizing-the-table-header)). The package appends links and keeps any existing description.
+
+## Permissions
+
+- The package shows a compact list of permissions/Gates for the resource. All observed gate checks (ability plus subject, when available) are listed first; if none were recorded it falls back to Filament Shield resource permissions (when installed).
+- Toggle via `QUICK_LINKS_SHOW_PERMISSIONS` (default `true`) or `config/quick-links.php`.
+- To record `hasPermissionTo()` / `checkPermissionTo()` calls from Spatie’s trait, optionally add `Niladam\QuickLinks\Concerns\RecordsPermissionChecks` to your `User` instead of the base `HasPermissions` trait. This will keep functionality unchanged but log permission checks for display.
 
 ## Installation
 

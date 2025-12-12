@@ -17,6 +17,9 @@ return [
     ],
 
     'permissions' => env('QUICK_LINKS_SHOW_PERMISSIONS', true),
+    // When enabled (default), permissions/gates are displayed:
+    // - Observed gate checks (ability plus subject when available).
+    // - Otherwise, generated Filament Shield resource permissions (when Shield is installed).
 
     'prefix' => env('QUICK_LINKS_PREFIX', 'Open in PHPStorm:'),
     'separator' => env('QUICK_LINKS_SEPARATOR', ' &bull; '),
