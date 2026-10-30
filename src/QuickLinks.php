@@ -2,12 +2,12 @@
 
 namespace Niladam\QuickLinks;
 
+use BezhanSalleh\FilamentShield\Facades\FilamentShield;
 use Closure;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\HtmlString;
 use ReflectionClass;
-use Niladam\QuickLinks\GateCollector;
 
 class QuickLinks
 {
@@ -240,12 +240,12 @@ class QuickLinks
             return [];
         }
 
-        if (! class_exists(\BezhanSalleh\FilamentShield\Facades\FilamentShield::class)) {
+        if (! class_exists(FilamentShield::class)) {
             return [];
         }
 
         /** @var array<string>|null $permissions */
-        $permissions = \BezhanSalleh\FilamentShield\Facades\FilamentShield::getResourcePermissions($resource);
+        $permissions = FilamentShield::getResourcePermissions($resource);
 
         if (! is_array($permissions)) {
             return [];

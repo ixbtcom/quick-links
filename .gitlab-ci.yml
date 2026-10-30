@@ -1,0 +1,59 @@
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api"
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_BRANCH =~ /^ci\/(batch|local)-/
+    - if: $CI_COMMIT_TAG
+
+default:
+  tags: [docker]
+
+check:
+  image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/alpine:3.20
+  timeout: 5m
+  variables:
+    GIT_DEPTH: "0"
+  script:
+    - apk add --no-cache git >/dev/null
+    - base="${CI_MERGE_REQUEST_DIFF_BASE_SHA:-${CI_COMMIT_BEFORE_SHA:-}}"
+    - |
+      if [ "$base" = "0000000000000000000000000000000000000000" ]; then
+        if [ "$(git rev-parse --is-shallow-repository)" != "false" ]; then
+          echo "cannot identify a root commit in a shallow clone" >&2
+          exit 1
+        fi
+        head=$(git rev-parse HEAD) || exit 1
+        ancestry=$(git rev-list --parents -n 1 HEAD) || exit 1
+        if [ "$ancestry" = "$head" ]; then
+          echo "root commit: no previous commit"
+          exit 0
+        fi
+        base=$(git rev-parse --verify HEAD^) || exit 1
+      fi
+      if [ -z "$base" ]; then
+        echo "missing diff base" >&2
+        exit 1
+      elif ! git cat-file -e "$base^{commit}" 2>/dev/null; then
+        echo "diff base is not available in the full clone" >&2
+        exit 1
+      else
+        git diff --check "$base" HEAD
+      fi
+
+pint:
+  image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/chialab/php:8.3
+  timeout: 15m
+  retry:
+    max: 1
+    exit_codes: [100]
+  variables:
+    COMPOSER_NO_INTERACTION: "1"
+  before_script:
+    - php --version
+    - composer --version
+    - composer install --prefer-dist --no-progress --no-interaction
+  script:
+    - vendor/bin/pint --test

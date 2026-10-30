@@ -2,10 +2,9 @@
 
 namespace Niladam\QuickLinks;
 
-use Livewire\Livewire;
 use Filament\Tables\Table;
+use Livewire\Livewire;
 use Niladam\QuickLinks\Facades\QuickLinks;
-use Niladam\QuickLinks\GateCollector;
 use Niladam\QuickLinks\Livewire\QuickLinksComponentHook;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
