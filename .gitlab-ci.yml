@@ -12,7 +12,7 @@ default:
   tags: [docker]
 
 check:
-  image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/alpine:3.20
+  image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/alpine:3.24
   timeout: 5m
   variables:
     GIT_DEPTH: "0"
@@ -44,7 +44,7 @@ check:
       fi
 
 pint:
-  image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/chialab/php:8.3
+  image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/chialab/php:8.5
   timeout: 15m
   retry:
     max: 1
@@ -54,7 +54,7 @@ pint:
     COMPOSER_ALLOW_SUPERUSER: "1"
   before_script:
     - php --version
-    - test "$(php -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')" = "8.3"
+    - test "$(php -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')" = "8.5"
     - |
       curl --fail --silent --show-error --location https://getcomposer.org/download/2.11.1/composer.phar --output .ci-composer.phar
       printf '%s  %s\n' '6f1b891e1d4927d62740276c540fb490e47689e19e102c49e8da849794882f8c' '.ci-composer.phar' | sha256sum --check --status
