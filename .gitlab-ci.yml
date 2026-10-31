@@ -51,9 +51,19 @@ pint:
     exit_codes: [100]
   variables:
     COMPOSER_NO_INTERACTION: "1"
+    COMPOSER_ALLOW_SUPERUSER: "1"
   before_script:
     - php --version
-    - composer --version
-    - composer install --prefer-dist --no-progress --no-interaction
+    - test "$(php -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')" = "8.3"
+    - |
+      curl --fail --silent --show-error --location https://getcomposer.org/download/2.11.1/composer.phar --output .ci-composer.phar
+      printf '%s  %s\n' '6f1b891e1d4927d62740276c540fb490e47689e19e102c49e8da849794882f8c' '.ci-composer.phar' | sha256sum --check --status
+      php .ci-composer.phar --version --no-ansi
+    - php .ci-composer.phar install --prefer-dist --no-progress --no-interaction
   script:
+    - php .ci-composer.phar audit --format=json > composer-audit.json
     - vendor/bin/pint --test
+  artifacts:
+    when: always
+    paths:
+      - composer-audit.json
