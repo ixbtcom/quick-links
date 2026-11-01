@@ -16,6 +16,15 @@ Quickly open resource, models, and other files from within your FilamentPHP tabl
 
 ## Installation
 
+This fork is maintained in [GitLab](https://glab.ixbt.site/packages/quick-links) on branch `master`.
+To select it instead of the upstream package, configure this VCS repository in the consuming
+application (GitLab access is required); the Composer package name remains `niladam/quick-links`:
+
+```bash
+composer config repositories.quick-links vcs https://glab.ixbt.site/packages/quick-links.git
+composer require niladam/quick-links:dev-master
+```
+
 You can install the package via composer:
 
 ```bash
